@@ -1,0 +1,60 @@
+Text Splitting:-
+    Text Splitting is the process of breaking large chunks of text (like articles, PDFs, HTML pages, or books) into smaller, manageable pieces (chunks)that an LLM can handle effectively.
+
+    -> Overcoming model limitations: Many embedding models and language models have maximum input size constraints. Splitting allows us to process documents that would otherwise exceed these limits.
+        eg -> a LLM have a limit of 50,000 tokens but the pdf having more than 1 Lakh token it that case we use splitting.
+    -> Downstream tasks-Text Splitting improves nearly every LLM powered task.
+          Task                                 Why Splitting Helps
+        Embedding           ->        Short chunks yield more accurate vectors
+        Semantic Search     ->        Search results point to focused info, not noise
+        Summarization       ->        Prevents hallucination and topic drift
+    -> Optimizing computational resources: Working with smaller chunks of text can be more memory-efficient and allow for better parallelization of processing tasks.
+
+
+    Length-based splitting -> we can split the long text into chunks of length (n)
+
+    text-based splitting ->  we can split the text in chunks on the basis of paragraphs(/n/n), next line (/n), space(' ') and char('')
+    It uses a common splitter called Recursive Character Text Splitter.
+                chunk size = 10
+                        eg:                             [My name is nitish (17) (includes space)        (17+17+17+11 > 10)            
+                                                        I am 35 years old (17)
+                                                                
+                                                        I live in Gurgaon (17)
+                                                        How are you (11) ]                                                          [split on the basis of paragraph]
+                                                       /                  \
+                                                      /                    \ 
+                                                     /                      \
+                                                    /                        \
+                                                   /                          \                    
+                             My name is nitish (17)  (17+17 > 10)              I live in Gurgaon (17)           (17+11 > 10)         [split on the basis of next line]
+                             I am 35 years old (17)                            How are you (11)      \
+                            /                      \                          /                       \
+                           /                        \                        /                         \                                             
+(17>10) My name is nitish (17)  (17>10) I  am   35  years  old(17) (17>10)I live in Gurgaon(17)         How are you (11) (11>10)     [split on the basis of space]
+        /     |       |      \         /   |     |    |         \        /    |    \      \            /     |     \
+    my(2) name(4) is(2) nitish(5)    I(1) am(2) 35(2) years(5) old(3)  I(1) live(4) in(2) Gurgaon(7)  How(3) are(3) you(3)   [Optimizing the chunks to near to chunk size]
+       \     /      |      |           \     /    |     \       /        \      /      |      |         \     /       |  
+        \   /       |      |            \   /     |      \     /          \    /       |      |          \   /        |
+         \ /        |      |             \ /      |       \   /            \  /        |      |           \ /         |
+       my name(7)  is(2) nitish(6)    I am (4)   35(2)  years old(9)      I live(6)  in(2) Gurgaon(7)   How are(7)  you(3)
+             \     /       |             \        /         |                \         /      |            |          |
+              \   /        |              \      /          |                 \       /       |            |          |
+               \ /         |               \    /           |                  \     /        |            |          |
+        my name is (10)  nitish(6)         I am 35(7)   years old (9)      I live in (9)   Gurgaon(7)   How are (7)  you(3)
+
+        final chunks = ["my name", "nitish", "I am", "years old", "I live in", "Gurgaon", "How are", "you"]      (chunk size = 10) 
+
+    document structure based splitting -> This spitter is used to split the document having pragramming language, markdown and etc which can't be spliited by the normal splitter.
+    -> Here we use RecursiveCharacterTextSplitter with the from_Language method.
+
+    
+    Semantic-Meaning based splitting -> 
+    
+        Farmers were working hard in the fields, preparing the soil and planting seeds for the next season. The sun was bright, and the air smelled of earth and fresh grass. The Indian Premier League (IPL) is the biggest cricket league in the world. People all over the world watch the matches and cheer for their favourite teams.
+
+        Terrorism is a big danger to peace and safety. It causes harm to people and creates fear in cities and villages. When such attacks happen, they leave behind pain and sadness. To fight terrorism, we need strong laws, alert security forces, and support from people who care about peace and safety.
+
+        -> Here the two paragraph are different but if see the 1st paragraph there is context of "Farmers" in one line and "IPL" in another line which create a issue while using text-based splitting as when we create chunks the conrext of one paragraph can include in another and create problem while generating embeddings
+
+        -> So, we use semantic-Meaning splitting, which will compare the embeddings of two sentences and calculate the similarity between them if it is more 2 different chunks will be created if not It will create a single chunk.
+
