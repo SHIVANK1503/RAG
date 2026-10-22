@@ -49,11 +49,13 @@ Large Language Models only know what they were trained on. **Retrieval-Augmented
 │   └── vector_store.ipynb
 │
 ├── 4_Retrievers/
-│   ├── _notes.txt
+│   ├── notes.txt
 │   └── retrievers.ipynb
 │
 ├── 5_Tools/
-│   └── _notes.text
+│   └── notes.text
+|   └── tools.ipynb
+|   └── currency_conversion_tool.ipynb
 │
 ├── 6_Agents/
 │   ├── agents.text
